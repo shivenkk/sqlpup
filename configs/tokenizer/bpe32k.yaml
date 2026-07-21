@@ -1,0 +1,17 @@
+# Byte-level BPE tokenizer for the model. Trained on the SQL-heavy tokenizer
+# corpus (configs/data/mix_tokenizer_v2.yaml). The "code" pre-tokenizer (a
+# cl100k-style regex split before byte-level) measurably tightens SQL/code
+# compression; byte-level stays the last step, so roundtrip is still exact.
+vocab_size: 32768
+special_tokens:
+  - "<|schema|>"
+  - "<|question|>"
+  - "<|think|>"
+  - "<|sql|>"
+  - "<|user|>"
+  - "<|assistant|>"
+  - "<|end|>"
+  - "<|pad|>"
+sample_docs: 2_000_000
+out_dir: artifacts/tokenizer
+pre_tokenizer: code
