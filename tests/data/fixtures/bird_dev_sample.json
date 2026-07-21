@@ -1,0 +1,32 @@
+[
+  {
+    "question_id": 0,
+    "db_id": "school_finance",
+    "question": "How many distinct students enrolled in the autumn programme scored strictly above the passing threshold last academic year",
+    "evidence": "passing threshold refers to a final score greater than sixty out of one hundred",
+    "SQL": "SELECT COUNT(DISTINCT student_id) FROM enrollment WHERE term = 'autumn' AND final_score > 60",
+    "difficulty": "moderate"
+  },
+  {
+    "question_id": 1,
+    "db_id": "school_finance",
+    "question": "List every teacher name",
+    "evidence": "",
+    "SQL": "SELECT full_name FROM teacher",
+    "difficulty": "simple"
+  },
+  {
+    "question_id": 2,
+    "db_id": "city_hospital",
+    "question": "What is the average length of stay for patients admitted through the emergency department during the winter months",
+    "evidence": "length of stay is the discharge date minus the admission date measured in whole days",
+    "SQL": "SELECT AVG(julianday(discharge_date) - julianday(admission_date)) FROM stay WHERE route = 'ER'",
+    "difficulty": "challenging"
+  },
+  {
+    "question_id": 3,
+    "db_id": "city_hospital",
+    "question": "Count beds",
+    "SQL": "SELECT COUNT(*) FROM bed"
+  }
+]

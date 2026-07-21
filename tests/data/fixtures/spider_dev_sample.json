@@ -1,0 +1,22 @@
+[
+  {
+    "db_id": "concert_singer",
+    "question": "Show the names of all singers who performed in more than three separate concerts held during the summer festival season",
+    "query": "SELECT T2.name FROM performance AS T1 JOIN singer AS T2 ON T1.singer_id = T2.id GROUP BY T2.id HAVING COUNT(T1.concert_id) > 3"
+  },
+  {
+    "db_id": "concert_singer",
+    "question": "How many singers do we have",
+    "query": "SELECT COUNT(*) FROM singer"
+  },
+  {
+    "db_id": "world_1",
+    "question": "Which countries share a land border with more than five other distinct sovereign nations across the same continent",
+    "query": "SELECT name FROM country GROUP BY id HAVING COUNT(bordering_country_id) > 5"
+  },
+  {
+    "db_id": "world_1",
+    "question": "List all distinct official languages",
+    "query": "SELECT DISTINCT language FROM country_language WHERE is_official = 'T'"
+  }
+]

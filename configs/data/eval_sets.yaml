@@ -1,0 +1,38 @@
+# Evaluation sets decontaminated against with the 13-gram overlap filter.
+#
+# Each configured field of each example becomes its own index text entry
+# (question, gold SQL/query, and BIRD's evidence where non-empty): the design
+# spec's "questions + SQL" binding, with evidence as a strictly-safer superset.
+# Archives are cached under data/eval/ and only the named JSON member is
+# extracted (stdlib zipfile); the surrounding database bundles are never
+# unpacked. Provenance (URL, size, sha256) is recorded in the generated report.
+#
+# BIRD's test set is private (never publicly released), so it cannot be
+# decontaminated against and is deliberately absent here. Spider dev and test
+# both live inside the single canonical spider_data.zip, so they share one
+# download.
+sources:
+  # BIRD dev, 2024-06-27 release (the ~1,534-example set). The project page
+  # (bird-bench.github.io) links this Alibaba OSS zip; dev.json carries the
+  # natural-language question, the gold SQL, and an evidence hint.
+  - name: bird_dev
+    url: https://bird-bench.oss-cn-beijing.aliyuncs.com/dev.zip
+    archive_member: dev_20240627/dev.json
+    fields: [question, SQL, evidence]
+    expected_examples: 1534
+
+  # Spider 1.0 dev, from the canonical spider_data.zip linked off the official
+  # Yale-LILY leaderboard page (Google Drive file 1403EGqz...). ~1,034 examples.
+  - name: spider_dev
+    url: https://drive.usercontent.google.com/download?id=1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J&export=download&confirm=t
+    archive_member: spider_data/dev.json
+    fields: [question, query]
+    expected_examples: 1034
+
+  # Spider 1.0 test, from the same spider_data.zip (extracted once, reused).
+  # ~2,147 examples; released publicly after the competition.
+  - name: spider_test
+    url: https://drive.usercontent.google.com/download?id=1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J&export=download&confirm=t
+    archive_member: spider_data/test.json
+    fields: [question, query]
+    expected_examples: 2147
