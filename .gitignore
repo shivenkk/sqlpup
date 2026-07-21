@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Project data & artifacts (regenerable; never committed)
+/data/
+/artifacts/
+/wandb/
+/logs/
+*.bin
+
+# Environment & OS
+.env
+.env.*
+.DS_Store
