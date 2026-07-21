@@ -1,0 +1,13 @@
+# Tiny throwaway architecture for the CPU smoke-train only -- NOT a real scale.
+# Just large enough to exercise the full loop (attention, GQA, SwiGLU, tied
+# embeddings) end-to-end in seconds on CPU. head_dim = d_model / n_heads = 16.
+d_model: 32
+n_layers: 2
+n_heads: 2
+n_kv_heads: 1
+d_ff: 64
+vocab_size: 256
+max_seq_len: 64
+rope_theta: 10000.0
+norm_eps: 1.0e-5
+tie_embeddings: true

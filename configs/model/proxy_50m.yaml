@@ -1,0 +1,15 @@
+# Proxy scale for fast hyper-parameter sweeps: ~50M total params.
+# Same GQA family (4:1 query:kv), head_dim 64. With the 32768 tied vocab:
+#   embedding    = 32768 * 768                    = 25,165,824
+#   non-embedding= 4 * (2.5*768^2 + 3*768*2112 + 2*768) + 768 = 25,369,344
+#   total        = 50,535,168  (~50.54M, +1.1% of 50M target)
+d_model: 768
+n_layers: 4
+n_heads: 12
+n_kv_heads: 3
+d_ff: 2112
+vocab_size: 32768
+max_seq_len: 2048
+rope_theta: 10000.0
+norm_eps: 1.0e-5
+tie_embeddings: true

@@ -1,0 +1,22 @@
+# Main-pretrain architecture (P2 scale decision): ~394M params, ~361M non-embedding.
+# Pure DEPTH scale-up of base_260m: identical width and per-layer shapes (d_model
+# 1024, n_heads 16, n_kv_heads 4, d_ff 2816 => per-layer param count equals
+# base_260m's exactly), only the layer count grows 20 -> 32. Deliberate
+# depth-over-width choice: stronger inductive bias for compositional SQL at this
+# scale and the cleanest scaling story (mirrors base_260m's width, so every
+# convention carries over 1:1).
+# Llama-3-style decoder: RMSNorm pre-norm, SwiGLU, RoPE, GQA 16 query / 4 KV (4:1),
+# head_dim 64 (1024/16), tied embeddings, no biases -> HF-Llama 1:1 like the 260M.
+# d_ff 2816 = 2.75 * d_model (the base_260m d_ff convention).
+# Verified param count (constructed on meta): embedding 33,554,432 +
+# non-embedding 360,776,704 = total 394,331,136, inside the 390-410M target.
+d_model: 1024
+n_layers: 32
+n_heads: 16
+n_kv_heads: 4
+d_ff: 2816
+vocab_size: 32768
+max_seq_len: 2048
+rope_theta: 10000.0
+norm_eps: 1.0e-5
+tie_embeddings: true

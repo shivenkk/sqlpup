@@ -1,0 +1,12 @@
+# Baseline architecture (design spec §3): ~260M params, ~225M non-embedding.
+# Llama-3-style decoder: RMSNorm pre-norm, SwiGLU, RoPE, GQA 16 query / 4 KV.
+d_model: 1024
+n_layers: 20
+n_heads: 16
+n_kv_heads: 4
+d_ff: 2816
+vocab_size: 32768
+max_seq_len: 2048
+rope_theta: 10000.0
+norm_eps: 1.0e-5
+tie_embeddings: true
