@@ -1,0 +1,223 @@
+{
+  "692793_2021-09-21-08-02.backup.sql": {
+    "INFO": {
+      "URL": "https://github.com/alaindet/garnet/blob/7d26a564123c56ced22ef2bfd4de0e82e0716098/database/2021-09-21-08-02.backup.sql?raw=true\n",
+      "LICENSE": "MIT",
+      "PERMISSIVE": true
+    },
+    "TABLES": {
+      "courses": {
+        "COLUMNS": {
+          "course_id": {
+            "TYPE": "UnsignedInt",
+            "NULLABLE": false,
+            "UNIQUE": true,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": true,
+            "IS_INDEX": false,
+            "VALUES": [
+              1,
+              2,
+              6
+            ],
+            "COMMENT": null
+          },
+          "teacher_id": {
+            "TYPE": "UnsignedInt",
+            "NULLABLE": false,
+            "UNIQUE": null,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": false,
+            "IS_INDEX": true,
+            "VALUES": [
+              2,
+              3,
+              2
+            ],
+            "COMMENT": null
+          },
+          "created_on": {
+            "TYPE": "Timestamp",
+            "NULLABLE": false,
+            "UNIQUE": null,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": false,
+            "IS_INDEX": false,
+            "VALUES": [
+              "2021-08-05 18:47:08",
+              "2021-08-05 18:47:21",
+              "2021-09-09 19:57:38"
+            ],
+            "COMMENT": null
+          },
+          "updated_on": {
+            "TYPE": "Timestamp",
+            "NULLABLE": false,
+            "UNIQUE": null,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": false,
+            "IS_INDEX": false,
+            "VALUES": [
+              "2021-08-05 18:47:08",
+              "2021-08-05 18:47:21",
+              "2021-09-09 19:57:38"
+            ],
+            "COMMENT": null
+          }
+        },
+        "PRIMARY_KEYS": [
+          "course_id"
+        ],
+        "FOREIGN_KEYS": [],
+        "CHECKS": [],
+        "INDEXES": [
+          [
+            "teacher_id"
+          ]
+        ],
+        "COMMENT": null
+      },
+      "course_student": {
+        "COLUMNS": {
+          "course_id": {
+            "TYPE": "UnsignedInt",
+            "NULLABLE": false,
+            "UNIQUE": null,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": true,
+            "IS_INDEX": false,
+            "VALUES": [
+              1,
+              1,
+              1,
+              2,
+              2
+            ],
+            "COMMENT": null
+          },
+          "student_id": {
+            "TYPE": "UnsignedInt",
+            "NULLABLE": false,
+            "UNIQUE": null,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": true,
+            "IS_INDEX": true,
+            "VALUES": [
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "COMMENT": null
+          },
+          "created_on": {
+            "TYPE": "Timestamp",
+            "NULLABLE": false,
+            "UNIQUE": null,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": false,
+            "IS_INDEX": false,
+            "VALUES": [
+              "2021-08-19 22:46:00",
+              "2021-08-19 22:46:00",
+              "2021-08-19 22:46:00",
+              "2021-08-19 22:46:00",
+              "2021-08-19 22:46:00"
+            ],
+            "COMMENT": null
+          }
+        },
+        "PRIMARY_KEYS": [
+          "course_id",
+          "student_id"
+        ],
+        "FOREIGN_KEYS": [
+          {
+            "COLUMNS": [
+              "course_id"
+            ],
+            "FOREIGN_TABLE": "courses",
+            "REFERRED_COLUMNS": [
+              "course_id"
+            ],
+            "ON_DELETE": "Cascade",
+            "ON_UPDATE": "Cascade"
+          }
+        ],
+        "CHECKS": [],
+        "INDEXES": [
+          [
+            "student_id"
+          ]
+        ],
+        "COMMENT": null
+      }
+    }
+  },
+  "375149_toko.sql": {
+    "INFO": {
+      "URL": "https://github.com/AdvenAdam/Toko/blob/e6d4eeaa23e02d9b407808ac97ed5558eced3d12/toko.sql?raw=true\n",
+      "LICENSE": "MIT",
+      "PERMISSIVE": true
+    },
+    "TABLES": {
+      "tbl_transaksi": {
+        "COLUMNS": {
+          "id": {
+            "TYPE": "Int",
+            "NULLABLE": false,
+            "UNIQUE": true,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": true,
+            "IS_INDEX": false,
+            "COMMENT": null
+          }
+        },
+        "PRIMARY_KEYS": [
+          "id"
+        ],
+        "FOREIGN_KEYS": [],
+        "CHECKS": [],
+        "INDEXES": [],
+        "COMMENT": null
+      }
+    }
+  },
+  "022594_rely.sql": {
+    "INFO": {
+      "URL": "https://github.com/kppomzh/DatabaseDataCreater/blob/f2674641136f5b951fa53e4e7422de8361cf5ef7/rely.sql?raw=true\n",
+      "LICENSE": "APACHE-2.0",
+      "PERMISSIVE": true
+    },
+    "TABLES": {
+      "a3": {
+        "COLUMNS": {
+          "id": {
+            "TYPE": "Int",
+            "NULLABLE": null,
+            "UNIQUE": null,
+            "DEFAULT": null,
+            "CHECKS": [],
+            "IS_PRIMARY": false,
+            "IS_INDEX": false,
+            "COMMENT": null
+          }
+        },
+        "PRIMARY_KEYS": [],
+        "FOREIGN_KEYS": [],
+        "CHECKS": [],
+        "INDEXES": [],
+        "COMMENT": null
+      }
+    }
+  }
+}

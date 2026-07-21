@@ -1,0 +1,58 @@
+# Tokenizer-fertility sample: a ~1/100 slice of mix_baseline (~95M proxy-tokens,
+# ~380MB of text) used for the earlier, smaller tokenizer-fertility experiments.
+# The shipped byte-level BPE tokenizer is trained on the larger SQL-heavy corpus
+# (configs/data/mix_tokenizer_v2.yaml), not this sample. Source
+# urls/licenses/fields/fetch-schema mirror mix_baseline verbatim; only out_dir
+# and target_tokens differ. Proportions match the baseline mix
+# (4.0/2.5/1.5/0.5/1.0 B -> 40/25/15/5/10 M proxy-tokens).
+seed: 1337
+out_dir: data/sample
+sources:
+  - name: fineweb_edu
+    hf_path: HuggingFaceFW/fineweb-edu
+    hf_name: sample-10BT
+    split: train
+    license: ODC-By-1.0
+    target_tokens: 40_000_000
+    text_field: text
+
+  # starcoderdata's `sql` subset is a directory, selected via data_dir.
+  - name: starcoder_sql
+    hf_path: bigcode/starcoderdata
+    hf_name: null
+    split: train
+    license: BigCode OpenRAIL-M (permissive subset)
+    target_tokens: 25_000_000
+    text_field: content
+    hf_data_dir: sql
+
+  - name: synsql
+    hf_path: seeklhy/SynSQL-2.5M
+    hf_name: null
+    split: train
+    license: Apache-2.0
+    target_tokens: 15_000_000
+    text_field: null
+    kind: synsql
+    url: https://huggingface.co/datasets/seeklhy/SynSQL-2.5M/resolve/main/data.json
+    tables_url: https://huggingface.co/datasets/seeklhy/SynSQL-2.5M/resolve/main/tables.json
+
+  - name: schemapile
+    hf_path: null
+    hf_name: null
+    split: train
+    license: CC-BY-4.0
+    target_tokens: 5_000_000
+    text_field: null
+    kind: schemapile
+    url: https://zenodo.org/records/12682521/files/schemapile-perm.json.gz
+
+  # the-stack-dedup's `data/python` subset is likewise a directory.
+  - name: stack_python
+    hf_path: bigcode/the-stack-dedup
+    hf_name: null
+    split: train
+    license: permissive-only filter
+    target_tokens: 10_000_000
+    text_field: content
+    hf_data_dir: data/python

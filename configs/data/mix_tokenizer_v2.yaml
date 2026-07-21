@@ -1,0 +1,83 @@
+# Tokenizer-training corpus v2 (~780M proxy-tokens): a bigger, SQL-heavier
+# corpus for retraining the model's byte-level BPE tokenizer.
+#
+# Why this mix differs from the pretrain mix (mix_baseline.yaml). The pretrain
+# mix is web-English-heavy (fineweb 40%) so the MODEL learns to read prose. The
+# TOKENIZER, by contrast, should compress the model's actual I/O well: it reads
+# short English questions + schema DDL and generates English chain-of-thought +
+# SQL. So this corpus leans SQL/code/schema while keeping enough English that
+# question/CoT fertility stays reasonable. An earlier tokenizer lost to cl100k
+# on SQL largely because its training corpus was small (~95M tokens) and only
+# ~35% SQL; this corpus is ~8x larger and SQL/code/schema-dominant.
+#
+# Proxy-token budget per source (chars->tokens proxy, enforced at download):
+#   starcoder_sql 250M + synsql 200M + schemapile 80M + stack_python 100M
+#   + fineweb_edu 150M = 780M total. SQL + schema + code (starcoder + schemapile
+#   + stack_python) is ~55% of the budget; synsql (~26%) adds schema/question/
+#   CoT/SQL; fineweb_edu (~19%) is the pure-English anchor for question/CoT
+#   fertility. Sources, urls, licenses and fetch fields are copied verbatim from
+#   mix_baseline.yaml (incl. the hf_data_dir directory-subset fix); only
+#   out_dir and target_tokens differ.
+seed: 1337
+out_dir: data/tokenizer_corpus
+sources:
+  # starcoderdata's `sql` subset is a directory in the repo, selected via
+  # data_dir (not the builder-config `name`, which would raise).
+  - name: starcoder_sql
+    hf_path: bigcode/starcoderdata
+    hf_name: null
+    split: train
+    license: BigCode OpenRAIL-M (permissive subset)
+    target_tokens: 250_000_000
+    text_field: content
+    hf_data_dir: sql
+
+  # Rendered into schema/question/think/sql docs. data.json is a single ~9.36GB
+  # JSON array streamed object-by-object (never fully downloaded); the schema
+  # DDL is joined by db_id from the dataset's tables.json (~306MB, cached once).
+  # Both are Hugging Face resolve URLs.
+  - name: synsql
+    hf_path: seeklhy/SynSQL-2.5M
+    hf_name: null
+    split: train
+    license: Apache-2.0
+    target_tokens: 200_000_000
+    text_field: null
+    kind: synsql
+    url: https://huggingface.co/datasets/seeklhy/SynSQL-2.5M/resolve/main/data.json
+    tables_url: https://huggingface.co/datasets/seeklhy/SynSQL-2.5M/resolve/main/tables.json
+
+  # Fetched from the SchemaPile-Perm release (Zenodo v0.2) and rendered to DDL.
+  # Permissive-only subset (~23k schemas, per-schema MIT/Apache/BSD/...); the
+  # dataset itself is CC-BY-4.0. The artifact is one 28MB gzipped JSON object.
+  - name: schemapile
+    hf_path: null
+    hf_name: null
+    split: train
+    license: CC-BY-4.0
+    target_tokens: 80_000_000
+    text_field: null
+    kind: schemapile
+    url: https://zenodo.org/records/12682521/files/schemapile-perm.json.gz
+
+  # the-stack-dedup's `data/python` subset is likewise a directory selected via
+  # data_dir. Code (not SQL) but keeps the tokenizer fluent in the identifiers,
+  # operators and indentation that appear in schema/query context.
+  - name: stack_python
+    hf_path: bigcode/the-stack-dedup
+    hf_name: null
+    split: train
+    license: permissive-only filter
+    target_tokens: 100_000_000
+    text_field: content
+    hf_data_dir: data/python
+
+  # General English anchor: keeps question/CoT fertility reasonable so a
+  # SQL-heavy tokenizer does not wreck the natural-language side.
+  - name: fineweb_edu
+    hf_path: HuggingFaceFW/fineweb-edu
+    hf_name: sample-10BT
+    split: train
+    license: ODC-By-1.0
+    target_tokens: 150_000_000
+    text_field: text

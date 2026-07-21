@@ -1,0 +1,41 @@
+[
+  {
+    "db_id": "football_match_data_and_statistics",
+    "sql_complexity": "Moderate",
+    "question_style": "Colloquial",
+    "question": "Hey, could you help me find the average number of goals scored by teams in the first league during the first season? I'd love to know the average for each season that has at least one team competing.",
+    "external_knowledge": "",
+    "cot": "To answer the question, we need to perform the following steps:\n\n1. **Extract the necessary data**:\n   - We need the `goals_for` data from the `teams` table.\n   - We also need to link this to the `leagues` and `seasons` tables to ensure we're considering teams from the first league and the first season.\n\n2. **Filter by league and season**:",
+    "sql": "SELECT seasons.season_name, AVG(teams.goals_for) AS average_goals_scored\nFROM teams\nJOIN leagues ON teams.league_id = leagues.league_id\nJOIN seasons ON teams.season_id = seasons.season_id\nWHERE leagues.league_id = 1\nGROUP BY seasons.season_id\nHAVING COUNT(teams.team_id) > 0;",
+    "ddls": [
+      "CREATE TABLE \"leagues\" (\n  \"league_id\" INTEGER /* Unique identifier for each league */,\n  \"league_name\" TEXT /* Name of the league */,\n  \"country\" TEXT /* Country the league belongs to */,\n  PRIMARY KEY (\"league_id\")\n)",
+      "CREATE TABLE \"seasons\" (\n  \"season_id\" INTEGER /* Unique identifier for each season */,\n  \"season_name\" TEXT /* Name of the season */,\n  \"start_date\" TEXT /* Start date of the season */,\n  \"end_date\" TEXT /* End date of the season */,\n  PRIMARY KEY (\"season_id\")\n)"
+    ]
+  },
+  {
+    "db_id": "jewelry_sizing_and_conversion",
+    "sql_complexity": "Highly Complex",
+    "question_style": "Colloquial",
+    "question": "Hey, can you show me the top 5 regions where we've sold the most jewelry by weight, considering only the orders where our inventory was sufficient to meet the demand? I'd love to see the region names and the total weight of jewelry sold cumulatively. Give me the top 5 regions with the highest sales.",
+    "external_knowledge": "",
+    "cot": "To achieve the goal of finding the top 5 regions by weight of jewelry sold, considering only orders where inventory was sufficient to meet demand, we need to:\n\n1. Join the relevant tables:\n   - `orders` to get order details.\n   - `order_items` to get product details for each order item.\n   - `products` to get weight and jewelry type information.",
+    "sql": "WITH OrderDetails AS (\n    SELECT\n        o.order_id,\n        oi.product_id,\n        oi.quantity AS order_quantity,\n        p.weight * oi.quantity AS order_weight,\n        r.region_id,\n        r.region_name,\n        i.quantity AS inventory_quantity\n    FROM orders o\n    JOIN order_items oi ON o.order_id = oi.order_id\n    JOIN products p ON oi.product_id = p.product_id\n    JOIN regions r ON oi.size = sc.size AND oi.product_id = p.product_id\n    JOIN size_conversions sc ON p.jewelry_type_id = sc.jewelry_type_id\n    JOIN inventories i ON p.product_id = i.product_id\n),\nSalesByRegion AS (\n    SELECT\n        region_name,\n        SUM(order_weight) AS total_weight_sold\n    FROM OrderDetails\n    WHERE inventory_quantity >= order_quantity\n    GROUP BY region_name\n),\nCumulativeSales AS (\n    SELECT\n        region_name,\n        SUM(total_weight_sold) OVER (\n            ORDER BY total_weight_sold DESC\n            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n        ) AS cumulative_sales\n    FROM SalesByRegion\n)\nSELECT\n    region_name,\n    total_weight_sold\nFROM SalesByRegion\nORDER BY total_weight_sold DESC\nLIMIT 5;",
+    "ddls": [
+      "CREATE TABLE \"jewelry_types\" (\n  \"jewelry_type_id\" INTEGER /* Unique identifier for each jewelry type */,\n  \"jewelry_type_name\" TEXT /* Name of the jewelry type */,\n  \"description\" TEXT /* Description of the jewelry type */,\n  \"material\" TEXT /* Material of the jewelry */,\n  \"design\" TEXT /* Design or style of the jewelry */,\n  \"weight\" REAL /* Weight of the jewelry in grams */,\n  PRIMARY KEY (\"jewelry_type_id\")\n)",
+      "CREATE TABLE \"regions\" (\n  \"region_id\" INTEGER /* Unique identifier for each region */,\n  \"region_name\" TEXT /* Name of the region */,\n  \"currency\" TEXT /* Currency used in the region */,\n  \"time_zone\" TEXT /* Time zone of the region */,\n  PRIMARY KEY (\"region_id\")\n)"
+    ]
+  },
+  {
+    "db_id": "browser_performance_benchmarking_and_analysis",
+    "sql_complexity": "Complex",
+    "question_style": "Interrogative",
+    "question": "What is the name of the package with the highest memory usage across all browsers and languages?",
+    "external_knowledge": "",
+    "cot": "To translate the given natural language question into an SQL query, we need to focus on retrieving the package with the highest memory usage across all browsers and languages. This means we do not need to partition by browser or language; instead, we want to find the overall highest memory usage across all benchmark results.\n\nHere are the steps to achieve this:\n",
+    "sql": "SELECT\n    p.package_name\nFROM\n    benchmark_results b\nJOIN\n    packages p ON b.package_id = p.package_id\nWHERE\n    b.memory_usage = (SELECT MAX(memory_usage) FROM benchmark_results);",
+    "ddls": [
+      "CREATE TABLE \"browsers\" (\n  \"browser_id\" INTEGER /* Unique identifier for each browser */,\n  \"browser_name\" TEXT /* Name of the browser (e.g., GoogleChrome, MicrosoftEdge) */,\n  \"version\" TEXT /* Version of the browser */,\n  \"release_date\" TEXT /* Release date of the browser version */,\n  \"engine\" TEXT /* Rendering engine used by the browser (e.g., Blink, Gecko) */,\n  \"os_compatibility\" TEXT /* Operating systems supported by the browser (e.g., Windows, macOS, Linux) */,\n  PRIMARY KEY (\"browser_id\")\n)",
+      "CREATE TABLE \"languages\" (\n  \"language_id\" INTEGER /* Unique identifier for each language */,\n  \"language_name\" TEXT /* Name of the language (e.g., JS, WASM) */,\n  \"paradigm\" TEXT /* Programming paradigm (e.g., object-oriented, functional) */,\n  \"typing_discipline\" TEXT /* Typing discipline (e.g., statically-typed, dynamically-typed) */,\n  PRIMARY KEY (\"language_id\")\n)"
+    ]
+  }
+]
