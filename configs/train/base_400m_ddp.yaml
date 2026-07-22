@@ -1,0 +1,62 @@
+# MAIN pretrain, DDP world-size-4 twin of configs/train/base_400m.yaml.
+#
+# Runs on one g6e.12xlarge (4x L40S) under torchrun. This file changes exactly
+# three things vs the single-GPU twin -- grad_accum_steps, out_dir, and
+# wandb_run_name -- and NOTHING else: every measured/derived rationale in
+# base_400m.yaml carries over unchanged (max_lr 3e-4 from the 5e-4 -> 4e-4 ->
+# 3e-4 model-size LR ladder; the measured mb4/accum split from the L40S
+# micro-batch probe; warmup ~2%, WSD decay at 80%, checkpoint cadence, seed).
+#
+# The load-bearing invariant is the GLOBAL tokens/step, held identical to the
+# single-GPU twin's 1,048,576. grad_accum_steps is PER-RANK
+# (effective_tokens_per_step multiplies by world_size), so it is halved 128 ->
+# 32: 4 ranks x micro_batch 4 x accum 32 x seq 2048 = 1,048,576, the same total
+# the twin holds on one device with accum 128. Same global batch => the twin's
+# LR/schedule/step-budget all still apply; ~20.0B tokens over 19100 steps
+# (2 epochs, see the twin's header), at ~4x the throughput (~190h on 1 GPU ->
+# ~50h on 4x L40S).
+#
+# Launch invocation on the 4-GPU box:
+#
+#   uv run torchrun --standalone --nproc-per-node 4 -m sqlpup.cli train \
+#       --config configs/train/base_400m_ddp.yaml --device auto --resume auto
+#
+#   - `-m sqlpup.cli`: `sqlpup` is a console script, not a file torchrun can
+#     exec, so the module form (python -m sqlpup.cli) is the runnable entrypoint.
+#   - `--standalone`: single-node c10d rendezvous on a free localhost port; no
+#     --rdzv-* / --nnodes flags are needed. --nproc-per-node 4 => WORLD_SIZE 4,
+#     one process per L40S; dist_info_from_env() reads RANK/WORLD_SIZE/LOCAL_RANK.
+#   - `--device auto` is REQUIRED here, NOT `--device cuda`: select_device() pins
+#     each rank to cuda:{LOCAL_RANK} ONLY when the device is left to auto (None).
+#     An explicit --device cuda short-circuits that and lands every rank on
+#     cuda:0 (4 processes on one GPU) -- do not pass it.
+#   - `--resume auto`: fresh on the first launch (no latest.json yet), resumes
+#     from out_dir/latest.json on any spot-interruption relaunch -- idempotent,
+#     so the harness can relaunch blindly.
+#
+# out_dir is its own checkpoint namespace (base_400m_ddp) so the launch harness's
+# remote prefix -- derived from the config name -- does not collide with the
+# single-GPU twin's. Checkpoints are written by rank 0 only.
+#
+# The launch harness stages shards into artifacts/shards-full/ from object
+# storage before training starts.
+model_config: configs/model/base_400m.yaml
+shard_index: artifacts/shards-full/train/index.json
+eval_shard_index: artifacts/shards-full/eval/index.json
+out_dir: artifacts/checkpoints/base_400m_ddp
+seq_len: 2048
+micro_batch_size: 4
+grad_accum_steps: 32  # PER-RANK; world 4 => 4 * 4 * 32 * 2048 = 1,048,576 tok/step (same invariant as the single-GPU twin)
+max_lr: 3.0e-4
+min_lr_ratio: 0.1
+warmup_steps: 200
+decay_start_step: 15280
+total_steps: 19100
+eval_interval_steps: 250
+eval_batches: 50
+checkpoint_interval_steps: 40
+log_interval_steps: 5
+keep_checkpoints: 3
+seed: 1337
+wandb_project: sqlpup-pretrain
+wandb_run_name: base400m-10b-ddp4

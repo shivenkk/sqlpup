@@ -1,0 +1,27 @@
+# CPU smoke-train config -- NOT a real training recipe.
+#
+# Pairs with configs/model/smoke.yaml and the synthetic, trivially-learnable
+# shards that scripts/smoke_train.py writes under artifacts/smoke/. Runs a few
+# dozen steps in seconds to exercise the whole loop (train -> eval -> checkpoint
+# -> resume) in CI and locally via `make smoke-train`. Paths are relative to the
+# repo root, where the smoke script writes the shards and runs the CLI.
+#
+# effective tokens/step = micro_batch(4) * grad_accum(1) * seq_len(64) = 256
+model_config: configs/model/smoke.yaml
+shard_index: artifacts/smoke/train/index.json
+eval_shard_index: artifacts/smoke/eval/index.json
+out_dir: artifacts/smoke/ckpt
+seq_len: 64
+micro_batch_size: 4
+grad_accum_steps: 1
+max_lr: 3.0e-3
+min_lr_ratio: 0.1
+warmup_steps: 3
+decay_start_step: 24
+total_steps: 30
+eval_interval_steps: 10
+eval_batches: 2
+checkpoint_interval_steps: 10
+log_interval_steps: 5
+keep_checkpoints: 3
+seed: 0

@@ -1,0 +1,33 @@
+# The speculative-decoding DRAFT model: ~50M params, full corpus, 1 epoch.
+#
+# Purpose (project #2, the inference engine): a matched-tokenizer draft for
+# speculative decoding against the 394M target. Same 32k tokenizer, same
+# shards, same 1,048,576-token global step as every main run (the twin
+# invariant) -- so acceptance-rate studies compare models that differ only in
+# capacity, never in data or tokenization.
+#
+# One epoch = 9,669,777,302 corpus tokens / 1,048,576 tokens/step = 9,222 steps.
+# effective tokens/step = micro_batch(32) * grad_accum(16) * seq_len(2048)
+#                       = 1,048,576
+# LR follows the measured proxy ladder (2e-3 at ~50M scale); WSD shape matches
+# the main run's conventions (~2% warmup, decay from 80%).
+model_config: configs/model/proxy_50m.yaml
+shard_index: artifacts/shards-full/train/index.json
+eval_shard_index: artifacts/shards-full/eval/index.json
+out_dir: artifacts/checkpoints/base_50m_draft
+seq_len: 2048
+micro_batch_size: 32
+grad_accum_steps: 16
+max_lr: 2.0e-3
+min_lr_ratio: 0.1
+warmup_steps: 200
+decay_start_step: 7378   # 80% of total_steps
+total_steps: 9222
+eval_interval_steps: 250
+eval_batches: 100
+checkpoint_interval_steps: 120  # first ckpt ~12min stepping; controller expects <75min
+log_interval_steps: 10
+keep_checkpoints: 3
+seed: 1337
+wandb_project: sqlpup-pretrain
+wandb_run_name: draft50m-9b

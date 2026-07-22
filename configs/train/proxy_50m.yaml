@@ -1,0 +1,31 @@
+# P2 sweep BASELINE for the ~50M proxy model (configs/model/proxy_50m.yaml).
+#
+# These are starting points to sweep FROM, not tuned conclusions. Short-horizon
+# runs (~2000 steps) to compare LR / batch / data-mix choices cheaply before
+# committing to the base_260m run. Shard/checkpoint paths are produced at run
+# time under artifacts/ (gitignored) and are filled in for real at AWS time.
+#
+# Sized for a single L40S 48GB. At 50M params, mb 16 x accum 4 still leaves
+# headroom -- raise micro_batch first if a sweep run underutilizes the GPU.
+#
+# effective tokens/step = micro_batch(16) * grad_accum(4) * seq_len(2048)
+#                       = 131,072 tokens (~128K) per optimizer step
+# total tokens          = 131,072 * 2000 total_steps ~= 262M tokens
+model_config: configs/model/proxy_50m.yaml
+shard_index: artifacts/shards/train/index.json
+eval_shard_index: artifacts/shards/eval/index.json
+out_dir: artifacts/checkpoints/proxy_50m
+seq_len: 2048
+micro_batch_size: 16
+grad_accum_steps: 4
+max_lr: 2.0e-3          # slightly lower than the 30M proxy at this scale
+min_lr_ratio: 0.1
+warmup_steps: 40        # ~2% of total_steps
+decay_start_step: 1600  # ~80% of total_steps (WSD plateau, then linear decay)
+total_steps: 2000
+eval_interval_steps: 200
+eval_batches: 50
+checkpoint_interval_steps: 500
+log_interval_steps: 10
+keep_checkpoints: 3
+seed: 1337

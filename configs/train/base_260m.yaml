@@ -1,0 +1,35 @@
+# MAIN pretrain: base 260M on the full ~10B-token baseline mix.
+#
+# Every number here is measured or spec-mandated, not guessed:
+# - max_lr 4e-4: P2 sweeps found a flat LR basin at 50M (5e-4..1.5e-3, best
+#   5e-4 = eval 2.093 @262M tokens); one model-size scale-down step => 4e-4.
+# - micro_batch 8: mb16/24/32 all OOM on the L40S 44.4GiB (no activation
+#   checkpointing; CE logits spike). Measured 37,960 tok/s at this shape.
+# - effective batch = 8 * 64 * 2048 = 1,048,576 tokens/step (spec: 0.5-1M).
+# - total_steps 9550 * ~1.05M = ~10.0B tokens; warmup ~2%; WSD decay starts
+#   at 80% and the schedule is extendable mid-run (raise total_steps on
+#   resume) if the curves justify a longer stable phase.
+# - checkpoint_interval 65 steps ~= 30min at measured throughput (spec: S3
+#   checkpoint cadence; the launch harness streams out_dir to S3).
+# The launch harness stages shards into artifacts/shards-full/ from object
+# storage before training starts.
+model_config: configs/model/base_260m.yaml
+shard_index: artifacts/shards-full/train/index.json
+eval_shard_index: artifacts/shards-full/eval/index.json
+out_dir: artifacts/checkpoints/base_260m
+seq_len: 2048
+micro_batch_size: 8
+grad_accum_steps: 64
+max_lr: 4.0e-4
+min_lr_ratio: 0.1
+warmup_steps: 200
+decay_start_step: 7640
+total_steps: 9550
+eval_interval_steps: 250
+eval_batches: 50
+checkpoint_interval_steps: 65
+log_interval_steps: 5
+keep_checkpoints: 3
+seed: 1337
+wandb_project: sqlpup-pretrain
+wandb_run_name: base260m-10b

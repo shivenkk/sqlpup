@@ -1,0 +1,43 @@
+# MAIN pretrain: base 400M on the full ~10B-token baseline mix (P2 scale decision).
+#
+# Every number here is measured, derived, or spec-mandated, not guessed:
+# - max_lr 3e-4: one model-size scale-down step below the 260M's measured basin
+#   (4e-4), which itself stepped down from the 50M LR sweep basin (best 5e-4).
+#   Ladder: 5e-4 (50M) -> 4e-4 (260M) -> 3e-4 (400M).
+# - micro_batch 4 / grad_accum 128: measured optimal on the target L40S
+#   (60 steps each at matched 262k-token steps: mb4 = 29,403
+#   tok/s > mb6 = 26,733 > mb8 = 24,798; all fit in 44.4GiB, and the deep model
+#   prefers the small micro-batch). Single-GPU 10B ETA ~95h. The invariant is
+#   the tokens/step below; under DDP divide grad_accum by world_size.
+# - effective batch = 4 * 128 * 2048 = 1,048,576 tokens/step (spec: 0.5-1M).
+# - total_steps 19100 * ~1.05M = ~20.0B tokens, 2 epochs of the 9.67B corpus.
+#   Extended from the 9550-step/10B baseline per the live loss curve while
+#   still in the stable phase, so the trajectory is identical
+#   to a from-scratch 20B WSD run. Warmup ~2% (200); WSD decay starts at 80%
+#   (step 15280); the schedule remains extendable the same way (raise
+#   total_steps on resume) if the curves justify a longer stable phase.
+# - checkpoint_interval 40 steps ~= 30min at the ~22-25k tok/s expected for 400M
+#   (below the 260M's measured ~38k tok/s, hence a shorter step cadence than its
+#   65 to keep the ~30min S3 checkpoint rhythm).
+# The launch harness stages shards into artifacts/shards-full/ from object
+# storage before training starts.
+model_config: configs/model/base_400m.yaml
+shard_index: artifacts/shards-full/train/index.json
+eval_shard_index: artifacts/shards-full/eval/index.json
+out_dir: artifacts/checkpoints/base_400m
+seq_len: 2048
+micro_batch_size: 4
+grad_accum_steps: 128
+max_lr: 3.0e-4
+min_lr_ratio: 0.1
+warmup_steps: 200
+decay_start_step: 15280
+total_steps: 19100
+eval_interval_steps: 250
+eval_batches: 50
+checkpoint_interval_steps: 40
+log_interval_steps: 5
+keep_checkpoints: 3
+seed: 1337
+wandb_project: sqlpup-pretrain
+wandb_run_name: base400m-10b
