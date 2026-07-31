@@ -1,0 +1,8 @@
+-- SQLite schema:
+CREATE TABLE nums (n INTEGER);
+
+CREATE TABLE t (id INTEGER, name TEXT);
+
+-- External knowledge: rows refers to COUNT(*)
+-- Question: How many rows does t have?
+-- SQL:
