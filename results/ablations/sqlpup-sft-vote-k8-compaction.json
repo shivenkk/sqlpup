@@ -1,0 +1,1 @@
+{"by_difficulty": {"challenging": {"correct": 14, "ex": 0.09655172413793103, "total": 145}, "moderate": {"correct": 56, "ex": 0.1206896551724138, "total": 464}, "simple": {"correct": 284, "ex": 0.307027027027027, "total": 925}}, "categories": {"execution_error": 315, "ok": 1219}, "correct": 354, "ex": 0.23076923076923078, "missing": 0, "subset": "dev", "total": 1534}

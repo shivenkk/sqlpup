@@ -1,0 +1,43 @@
+{
+  "total": 1534,
+  "ex": 0.23272490221642764,
+  "valid_sql_rate": 0.7366362451108214,
+  "linking_f1": 0.7767823513586225,
+  "by_difficulty": {
+    "challenging": {
+      "correct": 13,
+      "total": 145,
+      "ex": 0.0896551724137931
+    },
+    "moderate": {
+      "correct": 66,
+      "total": 464,
+      "ex": 0.14224137931034483
+    },
+    "simple": {
+      "correct": 278,
+      "total": 925,
+      "ex": 0.3005405405405405
+    }
+  },
+  "by_joins": {
+    "0-1": {
+      "correct": 313,
+      "total": 1292,
+      "ex": 0.24226006191950464
+    },
+    "2+": {
+      "correct": 44,
+      "total": 242,
+      "ex": 0.18181818181818182
+    }
+  },
+  "block": {
+    "with_block": 1456,
+    "divergent": 41,
+    "hallucinated_identifiers": 239,
+    "divergence_rate": 0.02815934065934066
+  },
+  "subset": "dev",
+  "predictions": "artifacts/qwen/preds-fulldev.json"
+}

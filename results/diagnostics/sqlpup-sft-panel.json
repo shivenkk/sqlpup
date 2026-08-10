@@ -1,0 +1,43 @@
+{
+  "total": 1534,
+  "ex": 0.17405475880052151,
+  "valid_sql_rate": 0.6029986962190352,
+  "linking_f1": 0.7471047784607107,
+  "by_difficulty": {
+    "challenging": {
+      "correct": 10,
+      "total": 145,
+      "ex": 0.06896551724137931
+    },
+    "moderate": {
+      "correct": 41,
+      "total": 464,
+      "ex": 0.08836206896551724
+    },
+    "simple": {
+      "correct": 216,
+      "total": 925,
+      "ex": 0.23351351351351352
+    }
+  },
+  "by_joins": {
+    "0-1": {
+      "correct": 254,
+      "total": 1292,
+      "ex": 0.19659442724458204
+    },
+    "2+": {
+      "correct": 13,
+      "total": 242,
+      "ex": 0.05371900826446281
+    }
+  },
+  "block": {
+    "with_block": 1456,
+    "divergent": 77,
+    "hallucinated_identifiers": 500,
+    "divergence_rate": 0.052884615384615384
+  },
+  "subset": "dev",
+  "predictions": "artifacts/side/preds-fulldev.json"
+}
