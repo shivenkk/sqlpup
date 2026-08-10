@@ -1,0 +1,28 @@
+<svg width="1200" height="200" viewBox="0 0 1200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="55%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="bars" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="200" rx="16" fill="#f8fafc"/>
+  <rect x="1" y="1" width="1198" height="198" rx="15" stroke="#e2e8f0" stroke-width="2" fill="none"/>
+  <text x="64" y="102" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="72" font-weight="700" fill="#0f172a">sql<tspan fill="url(#accent)">pup</tspan></text>
+  <text x="66" y="148" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="21" fill="#475569">a 400M text-to-SQL language model, built from scratch</text>
+  <g opacity="0.9">
+    <rect x="1016" y="118" width="14" height="28" rx="4" fill="url(#bars)" opacity="0.45"><animate attributeName="y" from="146" to="118" dur="0.9s" begin="0.0s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="146;118"/><animate attributeName="height" from="0" to="28" dur="0.9s" begin="0.0s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="0;28"/></rect>
+    <rect x="1040" y="96"  width="14" height="50" rx="4" fill="url(#bars)" opacity="0.6"><animate attributeName="y" from="146" to="96" dur="0.9s" begin="0.15s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="146;96"/><animate attributeName="height" from="0" to="50" dur="0.9s" begin="0.15s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="0;50"/></rect>
+    <rect x="1064" y="72"  width="14" height="74" rx="4" fill="url(#bars)" opacity="0.75"><animate attributeName="y" from="146" to="72" dur="0.9s" begin="0.3s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="146;72"/><animate attributeName="height" from="0" to="74" dur="0.9s" begin="0.3s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="0;74"/></rect>
+    <rect x="1088" y="52"  width="14" height="94" rx="4" fill="url(#bars)" opacity="0.9"><animate attributeName="y" from="146" to="52" dur="0.9s" begin="0.45s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="146;52"/><animate attributeName="height" from="0" to="94" dur="0.9s" begin="0.45s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="0;94"/></rect>
+    <rect x="1112" y="38"  width="14" height="108" rx="4" fill="url(#bars)"><animate attributeName="y" from="146" to="38" dur="0.9s" begin="0.6s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="146;38"/><animate attributeName="height" from="0" to="108" dur="0.9s" begin="0.6s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1" values="0;108"/></rect>
+  </g>
+  <text x="1124" y="170" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#94a3b8" text-anchor="end">SELECT loss FROM steps ORDER BY step;</text>
+  <rect x="1130" y="158" width="8" height="15" fill="#0891b2">
+    <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.45;0.5;0.95;1" dur="1.3s" repeatCount="indefinite"/>
+  </rect>
+</svg>
