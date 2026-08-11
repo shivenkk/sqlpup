@@ -1,15 +1,15 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-  <img alt="sqlpup, a 400M text-to-SQL language model built from scratch" src="assets/banner-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/shivenkk/sqlpup/main/assets/banner-dark.svg">
+  <img alt="sqlpup, a 400M text-to-SQL language model built from scratch" src="https://raw.githubusercontent.com/shivenkk/sqlpup/main/assets/banner-light.svg">
 </picture>
 
 <p align="center">
   <a href="https://github.com/shivenkk/sqlpup/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/shivenkk/sqlpup/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="Python 3.12+" src="https://img.shields.io/badge/python-3.12%2B-4f46e5">
   <a href="https://pytorch.org/docs/stable/notes/ddp.html"><img alt="PyTorch DDP" src="https://img.shields.io/badge/PyTorch-DDP-ee4c2c"></a>
-  <a href="results/"><img alt="BIRD dev EX 23.5%" src="https://img.shields.io/badge/BIRD%20dev%20EX-23.5%25-16a34a"></a>
-  <a href="tests/"><img alt="533 tests" src="https://img.shields.io/badge/tests-533-8b5cf6"></a>
-  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-22d3ee"></a>
+  <a href="https://github.com/shivenkk/sqlpup/tree/main/results"><img alt="BIRD dev EX 23.5%" src="https://img.shields.io/badge/BIRD%20dev%20EX-23.5%25-16a34a"></a>
+  <a href="https://github.com/shivenkk/sqlpup/tree/main/tests"><img alt="533 tests" src="https://img.shields.io/badge/tests-533-8b5cf6"></a>
+  <a href="https://github.com/shivenkk/sqlpup/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-22d3ee"></a>
 </p>
 
 A 394M-parameter text-to-SQL language model where **every stage is built from
@@ -26,7 +26,7 @@ that one respect.
 [BIRD](https://bird-bench.github.io/) **dev**, 1,534 questions, official
 execution-accuracy semantics. `±` is the standard deviation over three sampling
 seeds (0/101/202), not a standard error.
-Every number is read off a committed artifact in [`results/`](results/).
+Every number is read off a committed artifact in [`results/`](https://github.com/shivenkk/sqlpup/tree/main/results).
 
 | model | pretraining | unaided greedy | greedy + compaction | k=7 + compaction |
 |---|---|---:|---:|---:|
@@ -98,8 +98,8 @@ So RL and the two inference levers pull in opposite directions. Compaction is
 own it does not clear significance on 1,534 questions.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/grpo-kl-dark.png">
-  <img alt="GRPO KL divergence over 1000 steps against the pre-registered 0.1 ceiling, with mean reward below" src="assets/grpo-kl-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/shivenkk/sqlpup/main/assets/grpo-kl-dark.png">
+  <img alt="GRPO KL divergence over 1000 steps against the pre-registered 0.1 ceiling, with mean reward below" src="https://raw.githubusercontent.com/shivenkk/sqlpup/main/assets/grpo-kl-light.png">
 </picture>
 
 The halt conditions were declared before the run, so the KL trace is the
@@ -117,7 +117,7 @@ policy from one farming the bonus.
 |---|---|
 | **Parameters** | 394,331,136 (360.8M non-embedding + 33.6M tied embedding) |
 | **Architecture** | Llama-3-style decoder · d_model 1024 × **32 layers** · GQA 16q/4kv · SwiGLU · RoPE · RMSNorm |
-| **Tokenizer** | 32,768-vocab byte-level BPE, code-tuned pre-tokenizer ([fertility report](docs/tokenizer-fertility.md)) |
+| **Tokenizer** | 32,768-vocab byte-level BPE, code-tuned pre-tokenizer ([fertility report](https://github.com/shivenkk/sqlpup/blob/main/docs/tokenizer-fertility.md)) |
 | **Corpus** | 9.67B tokens / 5.41M documents · 5 sources · exact + near dedup · 13-gram decontamination |
 | **Pretraining** | ~20B tokens seen (2 epochs) · 1,048,576 tokens/step · WSD, peak LR 3e-4 · DDP |
 | **Post-training** | SFT on filtered NL-to-SQL pairs, then GRPO over an execution reward |
@@ -125,8 +125,8 @@ policy from one farming the bonus.
 | **Quality gates** | 533 tests, 497 of them on a bare CI checkout (36 need the shipped tokenizer or the `rl` extra) · mypy strict · ruff · CI on every push |
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/pretrain-loss-dark.png">
-  <img alt="Held-out loss for the 394M and 50M models against tokens seen, with the warmup-stable-decay learning rate below" src="assets/pretrain-loss-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/shivenkk/sqlpup/main/assets/pretrain-loss-dark.png">
+  <img alt="Held-out loss for the 394M and 50M models against tokens seen, with the warmup-stable-decay learning rate below" src="https://raw.githubusercontent.com/shivenkk/sqlpup/main/assets/pretrain-loss-light.png">
 </picture>
 
 Both models share the corpus, the tokenizer, and 1,048,576 tokens per step, so
@@ -191,7 +191,7 @@ flowchart LR
   queries). The shipped 32k
   is **3-6x smaller** than the reference vocabularies, stays within a modest
   margin of them, and beats Qwen2.5 on StarCoder SQL. Numbers and caveats:
-  [docs/tokenizer-fertility.md](docs/tokenizer-fertility.md).
+  [docs/tokenizer-fertility.md](https://github.com/shivenkk/sqlpup/blob/main/docs/tokenizer-fertility.md).
 - **Dedup that fits in RAM.** Near-dedup confirms MinHash-LSH candidates by
   signature agreement instead of retaining full shingle sets: ~1 KiB of state
   per kept document, the difference between 22 GiB and a physically impossible

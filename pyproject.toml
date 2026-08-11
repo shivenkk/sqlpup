@@ -33,6 +33,12 @@ rl = [
     "trl>=1.9,<2",
 ]
 
+[project.urls]
+Homepage = "https://github.com/shivenkk/sqlpup"
+Repository = "https://github.com/shivenkk/sqlpup"
+Issues = "https://github.com/shivenkk/sqlpup/issues"
+"Model weights" = "https://huggingface.co/shivenkk/sqlpup-394m-sft-grpo"
+
 [project.scripts]
 sqlpup = "sqlpup.cli:main"
 
