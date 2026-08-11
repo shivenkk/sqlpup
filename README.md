@@ -5,10 +5,11 @@
 
 <p align="center">
   <a href="https://github.com/shivenkk/sqlpup/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/shivenkk/sqlpup/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://pypi.org/project/sqlpup/"><img alt="PyPI" src="https://img.shields.io/pypi/v/sqlpup?color=4f46e5"></a>
+  <a href="https://huggingface.co/shivenkk/sqlpup-394m-sft-grpo"><img alt="weights on Hugging Face" src="https://img.shields.io/badge/weights-Hugging%20Face-ffcc4d"></a>
   <img alt="Python 3.12+" src="https://img.shields.io/badge/python-3.12%2B-4f46e5">
-  <a href="https://pytorch.org/docs/stable/notes/ddp.html"><img alt="PyTorch DDP" src="https://img.shields.io/badge/PyTorch-DDP-ee4c2c"></a>
   <a href="https://github.com/shivenkk/sqlpup/tree/main/results"><img alt="BIRD dev EX 23.5%" src="https://img.shields.io/badge/BIRD%20dev%20EX-23.5%25-16a34a"></a>
-  <a href="https://github.com/shivenkk/sqlpup/tree/main/tests"><img alt="533 tests" src="https://img.shields.io/badge/tests-533-8b5cf6"></a>
+  <a href="https://github.com/shivenkk/sqlpup/tree/main/tests"><img alt="543 tests" src="https://img.shields.io/badge/tests-543-8b5cf6"></a>
   <a href="https://github.com/shivenkk/sqlpup/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-22d3ee"></a>
 </p>
 
@@ -244,7 +245,21 @@ shards.
 
 ## Quickstart
 
-Requires [uv](https://docs.astral.sh/uv/) and Python 3.12+.
+To run the trained model, install the CLI and point it at a checkpoint. The
+weights are on Hugging Face, either
+[SFT + GRPO](https://huggingface.co/shivenkk/sqlpup-394m-sft-grpo) (23.51% dev EX)
+or [SFT](https://huggingface.co/shivenkk/sqlpup-394m-sft) (22.84%).
+
+```bash
+pip install "sqlpup[train]"                 # torch + transformers for inference
+hf download shivenkk/sqlpup-394m-sft-grpo --local-dir model/
+
+sqlpup eval predict --model-dir model/ --examples dev.json \
+    --db-root dev_databases/ --out-dir out/ --compact-overflow --self-consistency 7
+```
+
+To work on the pipeline itself, requires [uv](https://docs.astral.sh/uv/) and
+Python 3.12+.
 
 ```bash
 uv sync --dev && make check    # ruff + mypy (strict) + pytest
