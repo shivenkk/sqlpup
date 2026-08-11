@@ -667,6 +667,105 @@ def _cmd_eval_generate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _configure_run_log(path: Path) -> None:
+    """Log progress to stderr and to a file a third party can read after a crash."""
+    handlers: list[logging.Handler] = [logging.StreamHandler(), logging.FileHandler(path)]
+    for handler in handlers:
+        handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
+    root = logging.getLogger("sqlpup")
+    root.handlers.clear()
+    for handler in handlers:
+        root.addHandler(handler)
+    root.setLevel(logging.INFO)
+
+
+def _cmd_eval_predict(args: argparse.Namespace) -> int:
+    """Predict on a held-out split and write the file BIRD's evaluator reads."""
+    import contextlib
+
+    import sqlpup.eval.hf_generator as hf_generator
+    from sqlpup.eval.dataset import BirdExample, db_path_under, load_prediction_examples
+    from sqlpup.eval.execution import ExecutionScorer
+    from sqlpup.eval.predict import generate_predictions
+    from sqlpup.eval.prompts import SPECS
+    from sqlpup.eval.submit import run_resumable, write_bird_predictions
+
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    _configure_run_log(out_dir / "run.log")
+
+    spec = SPECS[args.prompt_spec]
+    examples = load_prediction_examples(args.examples)
+    if args.limit is not None:
+        examples = examples[: args.limit]
+
+    db_root = Path(args.db_root)
+    absent = sorted({e.db_id for e in examples if not db_path_under(db_root, e.db_id).exists()})
+    if absent:
+        raise SystemExit(
+            f"{len(absent)} database(s) not found under {db_root} "
+            f"(expected <root>/<db_id>/<db_id>.sqlite; first missing: {absent[0]!r})"
+        )
+
+    generator = hf_generator.HFGreedyGenerator(
+        args.model_dir,
+        device=args.device,
+        max_new_tokens=args.max_new_tokens,
+        batch_size=args.batch_size,
+        context_limit=args.context_limit,
+    )
+
+    with contextlib.ExitStack() as stack:
+        # Voting and compaction both execute candidate SQL, so the sandbox opens
+        # once for the whole run rather than once per chunk.
+        scorer = (
+            stack.enter_context(ExecutionScorer(timeout=args.timeout))
+            if args.self_consistency
+            else None
+        )
+
+        def predict(
+            chunk: Sequence[BirdExample],
+        ) -> tuple[list[dict[str, object]], dict[str, object]]:
+            return generate_predictions(
+                chunk,
+                # Unused because db_root is set: the cached dev release is never consulted.
+                db_root,
+                generator,
+                spec=spec,
+                self_consistency=args.self_consistency,
+                temperature=args.temperature,
+                seed=args.seed,
+                scorer=scorer,
+                compact_overflow=args.compact_overflow,
+                db_root=db_root,
+            )
+
+        records, meta = run_resumable(
+            examples, predict, out_dir / "progress.jsonl", chunk_size=args.chunk_size
+        )
+
+    predict_path = out_dir / f"predict_{args.split}.json"
+    empties = write_bird_predictions(records, examples, predict_path)
+    records_path = out_dir / "records.json"
+    records_path.write_text(json.dumps(records, indent=2) + "\n", encoding="utf-8")
+    meta = {**meta, "split": args.split, "db_root": str(db_root), "empty_predictions": empties}
+    meta_path = Path(str(records_path) + ".meta.json")
+    meta_path.write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _emit(
+        {
+            "written": str(predict_path),
+            "records": str(records_path),
+            "log": str(out_dir / "run.log"),
+            "examples": meta["examples"],
+            "empty_predictions": empties,
+            "compacted": meta.get("compacted"),
+            "prompt_spec": meta["prompt_spec"],
+        }
+    )
+    return 0
+
+
 _TRAIN_EXTRA_HINT = (
     "sqlpup train requires PyTorch, the optional 'train' extra, which is not installed.\n"
     "Install it with one of:\n"
@@ -1270,6 +1369,62 @@ def build_parser() -> argparse.ArgumentParser:
         help="prompt format; -selectcue ends mid-statement (base models continue comments)",
     )
     generate_cmd.set_defaults(func=_cmd_eval_generate)
+
+    predict_cmd = eval_sub.add_parser(
+        "predict",
+        help="predict on a held-out split (no gold) and write a BIRD submission file",
+        description="Resumable prediction for a split whose answers we do not have, "
+        "such as BIRD's test set. Writes predict_<split>.json in the format their "
+        "evaluator reads, plus a log and a progress file so an interrupted run "
+        "continues instead of restarting.",
+    )
+    predict_cmd.add_argument("--model-dir", required=True, help="exported HF model directory")
+    predict_cmd.add_argument(
+        "--examples", required=True, help="BIRD-format json (test.json); its SQL field may be empty"
+    )
+    predict_cmd.add_argument(
+        "--db-root", required=True, help="databases root, laid out <root>/<db_id>/<db_id>.sqlite"
+    )
+    predict_cmd.add_argument("--out-dir", required=True, help="directory for every run artifact")
+    predict_cmd.add_argument(
+        "--split", default="test", help="names the output file, predict_<split>.json"
+    )
+    predict_cmd.add_argument(
+        "--self-consistency",
+        type=int,
+        default=None,
+        metavar="K",
+        help="sample K completions and submit the answer most of them agree on",
+    )
+    predict_cmd.add_argument("--temperature", type=float, default=0.7)
+    predict_cmd.add_argument("--seed", type=int, default=0)
+    predict_cmd.add_argument(
+        "--compact-overflow",
+        action="store_true",
+        help="re-render over-context prompts with a compacted schema instead of "
+        "recording an empty prediction",
+    )
+    predict_cmd.add_argument(
+        "--chunk-size",
+        type=int,
+        default=64,
+        help="examples per checkpoint to the progress file (default: %(default)s)",
+    )
+    predict_cmd.add_argument("--max-new-tokens", type=int, default=256)
+    predict_cmd.add_argument("--batch-size", type=int, default=8)
+    predict_cmd.add_argument("--device", default=None, help="cuda/mps/cpu (default: auto)")
+    predict_cmd.add_argument("--context-limit", type=int, default=None)
+    predict_cmd.add_argument("--limit", type=int, default=None, help="only the first K examples")
+    predict_cmd.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT,
+        help="per-execution budget in seconds (default: %(default)s)",
+    )
+    predict_cmd.add_argument(
+        "--prompt-spec", default="bird-ddl-v1", choices=("bird-ddl-v1", "bird-ddl-v1-selectcue")
+    )
+    predict_cmd.set_defaults(func=_cmd_eval_predict)
 
     diagnose_cmd = eval_sub.add_parser(
         "diagnose",

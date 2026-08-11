@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from sqlpup.eval.compact import fit_ddl
-from sqlpup.eval.dataset import BirdExample, resolve_db_path
+from sqlpup.eval.dataset import BirdExample, db_path_under, resolve_db_path
 from sqlpup.eval.execution import ExecutionScorer
 from sqlpup.eval.generate import SQLGenerator, extract_sql
 from sqlpup.eval.prompts import BIRD_DDL_V1, PromptSpec, schema_ddl
@@ -57,12 +57,17 @@ def generate_predictions(
     compact_overflow: bool = False,
     min_generation: int = 256,
     block_budget: int | None = None,
+    db_root: Path | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Render, generate (optionally with execution-feedback refinement), record.
 
     Returns ``(records, meta)``: records are ``{"index", "predicted_sql"}``
     (plus ``"single_shot_sql"`` when refined -- both framings stay reportable),
     meta is the provenance block for the ``.meta.json`` sidecar.
+
+    ``db_root`` overrides where databases are looked up, for splits that are not
+    the cached dev release (BIRD's ``test_databases``). ``eval_dir`` still names
+    the cache directory the dev machinery uses.
     """
     if refine_retries is not None and scorer is None:
         raise ValueError("refine_retries requires a scorer (the refine loop probes execution)")
@@ -71,16 +76,21 @@ def generate_predictions(
     if two_pass and refine_retries is not None:
         raise ValueError("two_pass + refine is not wired yet; run them as separate passes")
 
+    def _db_path(db_id: str) -> Path:
+        if db_root is None:
+            return resolve_db_path(eval_dir, db_id)
+        return db_path_under(db_root, db_id)
+
     ddl_by_db: dict[str, str] = {}
     prompts: list[str] = []
     db_paths: list[Path] = []
     for example in examples:
         ddl = ddl_by_db.get(example.db_id)
         if ddl is None:
-            ddl = schema_ddl(resolve_db_path(eval_dir, example.db_id))
+            ddl = schema_ddl(_db_path(example.db_id))
             ddl_by_db[example.db_id] = ddl
         prompts.append(spec.render(ddl, question=example.question, evidence=example.evidence))
-        db_paths.append(resolve_db_path(eval_dir, example.db_id))
+        db_paths.append(_db_path(example.db_id))
 
     compaction_levels: dict[str, int] = {}
     vote_failures = 0

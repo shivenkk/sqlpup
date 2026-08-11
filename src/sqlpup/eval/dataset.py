@@ -108,6 +108,20 @@ def load_bird_file(path: Path | str) -> list[BirdExample]:
     return examples
 
 
+def load_prediction_examples(path: Path | str) -> list[BirdExample]:
+    """Examples from a held-out split, where gold SQL is absent or empty.
+
+    BIRD's ``test.json`` carries the same fields as ``dev.json`` except that
+    ``SQL`` is an empty string, or missing outright. A missing key is an error in
+    :func:`load_bird_file`, which feeds training and scoring; here it is the
+    expected case, so gold is recorded as ``""``. Nothing on the prediction path
+    reads it, and a held-out run must not be able to start reading it by
+    accident.
+    """
+    rows = _as_example_list(Path(path).read_bytes())
+    return [_example_from({**row, "SQL": row.get("SQL") or ""}, i) for i, row in enumerate(rows)]
+
+
 def _as_example_list(raw: bytes) -> list[Mapping[str, Any]]:
     data = json.loads(raw)
     if not isinstance(data, list):
@@ -147,9 +161,19 @@ def load_examples(eval_dir: Path, subset: str) -> list[BirdExample]:
     return [_example_from(row, i) for i, row in enumerate(rows)]
 
 
+def db_path_under(db_root: Path | str, db_id: str) -> Path:
+    """Path to a database's SQLite file under an explicit per-split databases root.
+
+    Every BIRD split lays its databases out the same way, ``<root>/<db_id>/
+    <db_id>.sqlite``, so pointing a run at ``test_databases`` needs a different
+    root and nothing else.
+    """
+    return Path(db_root) / db_id / f"{db_id}.sqlite"
+
+
 def resolve_db_path(eval_dir: Path, db_id: str) -> Path:
     """Path to a database's SQLite file under the extracted ``dev_databases`` tree."""
-    return eval_dir / DEV_DATABASES_DIRNAME / db_id / f"{db_id}.sqlite"
+    return db_path_under(eval_dir / DEV_DATABASES_DIRNAME, db_id)
 
 
 def _find_databases_member(outer: zipfile.ZipFile) -> str:

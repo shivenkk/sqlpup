@@ -284,6 +284,12 @@ uv run sqlpup eval gold-check --subset dev
 uv run sqlpup eval generate --model-dir artifacts/rl/run --subset dev \
     --self-consistency 7 --compact-overflow --seed 0 --out preds.json
 uv run sqlpup eval score --predictions preds.json --subset dev --out score.json
+
+# 6. Predict on a split whose answers you do not have (BIRD test). Gold is never
+#    read, the run resumes after an interruption, and the output is the format
+#    their evaluator reads.
+uv run sqlpup eval predict --model-dir artifacts/rl/run --examples test.json \
+    --db-root test_databases/ --out-dir submission/ --compact-overflow --self-consistency 7
 ```
 
 `make smoke-train` runs a seconds-long CPU check of the train, checkpoint, and
