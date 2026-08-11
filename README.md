@@ -30,9 +30,9 @@ Every number is read off a committed artifact in [`results/`](results/).
 
 | model | pretraining | unaided greedy | greedy + compaction | k=7 + compaction |
 |---|---|---:|---:|---:|
-| sqlpup 394M (SFT) | 9.67B tokens, from scratch | 17.41% | 17.86% | 22.84 ± 0.14 |
-| sqlpup 394M (SFT + GRPO) | 9.67B tokens, from scratch | 18.12% | **19.23%** | **23.51 ± 0.38** |
-| Qwen2.5-0.5B (SFT), control | ~18T tokens, industrial | 23.27% | 25.42% | 31.49 ± 0.91 |
+| [sqlpup 394M (SFT)](https://huggingface.co/shivenkk/sqlpup-394m-sft) | 9.67B tokens, from scratch | 17.41% | 17.86% | 22.84 ± 0.14 |
+| [sqlpup 394M (SFT + GRPO)](https://huggingface.co/shivenkk/sqlpup-394m-sft-grpo) | 9.67B tokens, from scratch | 18.12% | **19.23%** | **23.51 ± 0.38** |
+| [Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) (SFT), control | ~18T tokens, industrial | 23.27% | 25.42% | 31.49 ± 0.91 |
 | **clean SFT-vs-SFT gap** | | **5.87pt** | **7.56pt** | **8.65pt** |
 
 Columns are decoding configurations and **only cells within one column are
