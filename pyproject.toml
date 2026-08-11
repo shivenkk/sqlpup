@@ -1,6 +1,6 @@
 [project]
 name = "sqlpup"
-version = "0.1.0"
+version = "0.1.1"
 description = "A small text-to-SQL language model, trained from scratch."
 readme = "README.md"
 requires-python = ">=3.12"
